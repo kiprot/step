@@ -1,25 +1,21 @@
 #content {
   background-color :#fbfbfb;
+  font-family: "Source Sans Pro", sans-serif;
+  font-weight: 300;
   margin: auto;
-  width: 50%;
   max-width: 800px;
   min-width: 300px;
   padding-top: 80px;
   padding-bottom: 80px;
+  padding-left: 10px;
+  padding-right: 10px;
   text-align: left;
-  font-family: "Source Sans Pro", sans-serif;
-  font-weight: 300;
+  width: 50%;
 /*
   margin-left: auto;
   margin-right: auto;
   width: 650px;
 */
-}
-
-.image-thumbs img {
-  margin: 10px;
-  max-height: 200px;
-  max-width: 200px;
 }
 
 #greeting-container {
@@ -40,6 +36,12 @@ h2 {
 }
 
 .headshot {
-  width: 25%;
   min-width: 80px;
+  width: 25%;
+}
+
+.image-thumbs img {
+  margin: 10px;
+  max-height: 200px;
+  max-width: 200px;
 }
