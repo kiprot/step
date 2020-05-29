@@ -17,9 +17,8 @@
  */
 
 function randomizeImage() {
-  // The images directory contains 13 images, so generate a random index between
-  // 1 and 13.
-  const imageIndex = Math.floor(Math.random() * 8) + 1;
+  // Images directory contains 8 images
+  const imageIndex = String(Math.floor(Math.random() * 8) + 1);
   const imgUrl = 'images/dino_' + imageIndex + '.jpg';
 
   const imgElement = document.createElement('img');
