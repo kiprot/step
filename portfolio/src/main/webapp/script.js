@@ -39,24 +39,22 @@ function toggleDetailsButton() {
   }
 }
 
-// gets the data from server sides
+// Gets the data from server sides
 function getServerData() {
     fetch('/data')  
     .then(response => response.json()) 
     .then((data) => {
-        const dataListElement = document.getElementById('comments');
-        dataListElement.innerHTML = '';
-        //for(var i = 0; i < data.length; i++) {
-        for(let i in data) {
-            dataListElement.appendChild(createListElement(data[i]));
-            console.log(data[i]);
-        }
+        createListElement(data, 'comments');
     });
 }
 
-// creates a list element with text
-function createListElement(text) {
-    const liElement = document.createElement('li');
-    liElement.innerText = text;
-    return liElement;
+// Creates a list element with text
+function createListElement(data, attribute) {
+    const dataListElement = document.getElementById(attribute);
+    dataListElement.innerHTML = '';
+    for(let i in data) {
+        const liElement = document.createElement('li');
+        liElement.innerText = data[i];
+        dataListElement.appendChild(liElement);
+    }
 }
