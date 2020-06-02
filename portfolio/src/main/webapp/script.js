@@ -39,9 +39,22 @@ function toggleDetailsButton() {
   }
 }
 
-function getHelloMessage() {
-    fetch('/data').then(response => response.text()).then((message) => {
-        document.getElementById('message-container').innerText = message;
+// Gets the data from server sides
+function getServerData() {
+    fetch('/data')  
+    .then(response => response.json()) 
+    .then((data) => {
+        createListElement(data, 'comments');
     });
 }
 
+// Creates a list element with text
+function createListElement(data, attribute) {
+    const dataListElement = document.getElementById(attribute);
+    dataListElement.innerHTML = '';
+    for(let i in data) {
+        const liElement = document.createElement('li');
+        liElement.innerText = data[i];
+        dataListElement.appendChild(liElement);
+    }
+}
