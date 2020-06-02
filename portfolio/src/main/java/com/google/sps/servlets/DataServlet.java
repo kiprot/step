@@ -14,7 +14,11 @@
 
 package com.google.sps.servlets;
 
+//added Gson dependency
+import com.google.gson.Gson;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +28,22 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
+  // adding hard-coded messages to arraylist
+  ArrayList<String> sampleMessages = new ArrayList<>();
+
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {  
+    String messages = convertToJsonString(sampleMessages);
     response.setContentType("text/html;");
-    response.getWriter().println("Hello from Ken!");
+    response.getWriter().println(messages);
   }
+
+  public String convertToJsonString(ArrayList<String> list) {
+    sampleMessages.add("The MET is the best -ken");
+    sampleMessages.add("I love dinosaurs -john");
+    sampleMessages.add("The T_Rex looks cool -mary");
+    sampleMessages.add("New York Museums are great -jane");
+    return new Gson().toJson(list);
+  }
+
 }

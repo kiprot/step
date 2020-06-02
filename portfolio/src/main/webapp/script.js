@@ -39,9 +39,24 @@ function toggleDetailsButton() {
   }
 }
 
-function getHelloMessage() {
-    fetch('/data').then(response => response.text()).then((message) => {
-        document.getElementById('message-container').innerText = message;
+// gets the data from server sides
+function getServerData() {
+    fetch('/data')  
+    .then(response => response.json()) 
+    .then((data) => {
+        const dataListElement = document.getElementById('comments');
+        dataListElement.innerHTML = '';
+        //for(var i = 0; i < data.length; i++) {
+        for(let i in data) {
+            dataListElement.appendChild(createListElement(data[i]));
+            console.log(data[i]);
+        }
     });
 }
 
+// creates a list element with text
+function createListElement(text) {
+    const liElement = document.createElement('li');
+    liElement.innerText = text;
+    return liElement;
+}
