@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  // adding hard-coded messages to arraylist
   ArrayList<String> sampleMessages = new ArrayList<>();
+
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {  
@@ -39,6 +39,7 @@ public class DataServlet extends HttpServlet {
   }
 
   public String convertToJsonString(ArrayList<String> list) {
+    sampleMessages.clear();
     sampleMessages.add("The MET is the best -ken");
     sampleMessages.add("I love dinosaurs -john");
     sampleMessages.add("The T_Rex looks cool -mary");
