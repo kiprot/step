@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  // adding hard-coded messages to arraylist
   ArrayList<String> sampleMessages = new ArrayList<>();
+
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {  
@@ -38,11 +38,36 @@ public class DataServlet extends HttpServlet {
     response.getWriter().println(messages);
   }
 
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // Get the inpiut from the form.
+    String userComment = getUserComment(request);
+    if(userComment == null) {
+        response.setContentType("text/html");
+        response.getWriter().println("Please enter a valid comment");
+        return;
+    }
+    sampleMessages.add(userComment);
+    response.sendRedirect("/dinosaur.html");
+  }
+
+  private String getUserComment(HttpServletRequest request) {
+      // Get input from the form.
+      String userName = request.getParameter("user-name");
+      String userComment = request.getParameter("user-comment");
+
+      if(userName.length() <= 0) {
+          System.err.println("Please input name");
+          return null;
+      }
+      if(userComment.length() <= 0) {
+          System.err.println("No Comment");
+          return null;
+      }
+      return userName + " says " + userComment;
+  }
+
   public String convertToJsonString(ArrayList<String> list) {
-    sampleMessages.add("The MET is the best -ken");
-    sampleMessages.add("I love dinosaurs -john");
-    sampleMessages.add("The T_Rex looks cool -mary");
-    sampleMessages.add("New York Museums are great -jane");
     return new Gson().toJson(list);
   }
 

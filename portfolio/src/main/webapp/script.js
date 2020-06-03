@@ -17,7 +17,7 @@
  */
 
 function randomizeImage() {
-  // Images directory contains 8 images
+  // Images directory contains 8 images.
   const imageIndex = String(Math.floor(Math.random() * 8) + 1);
   const imgUrl = 'images/dino_' + imageIndex + '.jpg';
 
@@ -39,7 +39,7 @@ function toggleDetailsButton() {
   }
 }
 
-// Gets the data from server sides
+// Gets the data from server sides.
 function getServerData() {
     fetch('/data')  
     .then(response => response.json()) 
@@ -48,7 +48,7 @@ function getServerData() {
     });
 }
 
-// Creates a list element with text
+// Creates a list element with text.
 function createListElement(data, attribute) {
     const dataListElement = document.getElementById(attribute);
     dataListElement.innerHTML = '';
