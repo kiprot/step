@@ -14,9 +14,10 @@
 
 package com.google.sps.servlets;
 
-//added Gson dependency
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
@@ -28,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  // adding hard-coded messages to arraylist
   ArrayList<String> sampleMessages = new ArrayList<>();
 
   @Override
@@ -38,11 +38,30 @@ public class DataServlet extends HttpServlet {
     response.getWriter().println(messages);
   }
 
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String comment = getUserData(request, "user-comment");
+    String name = getUserData(request, "user-name");
+    if(comment == null || name == null) {
+      response.setContentType("text/html");
+      response.getWriter().println("Please make sure both entries are filled.");
+      return;
+    }
+    String userComment = name + " says " + comment;
+    sampleMessages.add(userComment);
+    response.sendRedirect("/dinosaur.html");
+  }
+
+  /** Returns user data entry, or null otherwise. */
+  private String getUserData(HttpServletRequest request, String attribute) {
+    String userData = request.getParameter(attribute);
+    if(userData.trim().length() == 0) {
+        return null;
+    }
+    return userData;
+  }
+
   public String convertToJsonString(ArrayList<String> list) {
-    sampleMessages.add("The MET is the best -ken");
-    sampleMessages.add("I love dinosaurs -john");
-    sampleMessages.add("The T_Rex looks cool -mary");
-    sampleMessages.add("New York Museums are great -jane");
     return new Gson().toJson(list);
   }
 

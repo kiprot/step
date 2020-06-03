@@ -25,8 +25,23 @@
       <button onclick="randomizeImage()">T-Rex </button>
       <div id="dinosaur-image-container"></div>
       <hr>
+
+      <form action="/data" method="POST">
+        <p>Comment Section</p>
+        <p>Your Name</p>
+        <input type="text" name="user-name"  minlength="0" maxlength="150">
+        <br/><br/>
+        <p>Type Comment</p>
+        <input type="text" name="user-comment"  minlength="0" maxlength="150">
+        <br/><br/>
+        <input type="submit">
+        <br/><br/>
+        <hr>
+      </form>
+      <br/><br/>
       <button onclick="getServerData()">Click to See Some Comments</button>
       <ul id="comments"></ul>
+      
     </div>
   </body>
 </html>
