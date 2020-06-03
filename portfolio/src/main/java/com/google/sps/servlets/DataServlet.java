@@ -14,9 +14,10 @@
 
 package com.google.sps.servlets;
 
-//added Gson dependency
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
@@ -30,7 +31,6 @@ public class DataServlet extends HttpServlet {
 
   ArrayList<String> sampleMessages = new ArrayList<>();
 
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {  
     String messages = convertToJsonString(sampleMessages);
@@ -40,31 +40,25 @@ public class DataServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Get the inpiut from the form.
-    String userComment = getUserComment(request);
-    if(userComment == null) {
-        response.setContentType("text/html");
-        response.getWriter().println("Please enter a valid comment");
-        return;
+    String comment = getUserData(request, "user-comment");
+    String name = getUserData(request, "user-name");
+    if(comment == null || name == null) {
+      response.setContentType("text/html");
+      response.getWriter().println("Please make sure both entries are filled.");
+      return;
     }
+    String userComment = name + " says " + comment;
     sampleMessages.add(userComment);
     response.sendRedirect("/dinosaur.html");
   }
 
-  private String getUserComment(HttpServletRequest request) {
-      // Get input from the form.
-      String userName = request.getParameter("user-name");
-      String userComment = request.getParameter("user-comment");
-
-      if(userName.length() <= 0) {
-          System.err.println("Please input name");
-          return null;
-      }
-      if(userComment.length() <= 0) {
-          System.err.println("No Comment");
-          return null;
-      }
-      return userName + " says " + userComment;
+  /** Returns user data entry, or null otherwise. */
+  private String getUserData(HttpServletRequest request, String attribute) {
+    String userData = request.getParameter(attribute);
+    if(userData.trim().length() == 0) {
+        return null;
+    }
+    return userData;
   }
 
   public String convertToJsonString(ArrayList<String> list) {
