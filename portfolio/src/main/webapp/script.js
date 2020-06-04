@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random greeting to the page.
- */
-
+/** Displays a random image */
 function randomizeImage() {
   // Images directory contains 8 images.
   const imageIndex = String(Math.floor(Math.random() * 8) + 1);
@@ -39,22 +36,22 @@ function toggleDetailsButton() {
   }
 }
 
-// Gets the data from server sides.
-function getServerData() {
+/** Gets the data from server sides. */
+function loadComments() {
     fetch('/data')  
     .then(response => response.json()) 
     .then((data) => {
-        createListElement(data, 'comments');
+        createCommentElement(data, 'comments');
     });
 }
 
-// Creates a list element with text.
-function createListElement(data, attribute) {
+/** Creates an element for displaying comments*/
+function createCommentElement(data, attribute) {
     const dataListElement = document.getElementById(attribute);
     dataListElement.innerHTML = '';
     for(let i in data) {
         const liElement = document.createElement('li');
-        liElement.innerText = data[i];
+        liElement.innerText = data[i].comment;
         dataListElement.appendChild(liElement);
     }
 }
