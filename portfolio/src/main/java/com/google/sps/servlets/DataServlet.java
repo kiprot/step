@@ -17,7 +17,11 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
+import com.google.sps.servlets.Comment;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
@@ -29,26 +33,46 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  ArrayList<String> sampleMessages = new ArrayList<>();
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {  
-    String messages = convertToJsonString(sampleMessages);
-    response.setContentType("text/html;");
-    response.getWriter().println(messages);
+    Query query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+    
+    ArrayList<Comment> comments = new ArrayList<>();
+    for(Entity entity : results.asIterable()) {
+        long id = entity.getKey().getId();
+        long timestamp = (long) entity.getProperty("timestamp");
+        String comment = (String) entity.getProperty("comment");
+
+        Comment userComment = new Comment(id, comment, timestamp);
+        comments.add(userComment);
+    }
+    String jsonComments = new Gson().toJson(comments);
+    response.setContentType("application/json;");
+    response.getWriter().println(jsonComments);
   }
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String comment = getUserData(request, "user-comment");
     String name = getUserData(request, "user-name");
+
     if(comment == null || name == null) {
       response.setContentType("text/html");
       response.getWriter().println("Please make sure both entries are filled.");
       return;
     }
     String userComment = name + " says " + comment;
-    sampleMessages.add(userComment);
+    long timestamp = System.currentTimeMillis();
+    
+    Entity taskEntity = new Entity("Comment");
+    taskEntity.setProperty("comment", userComment);
+    taskEntity.setProperty("timestamp", timestamp);
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(taskEntity);
+
     response.sendRedirect("/dinosaur.html");
   }
 
@@ -60,9 +84,4 @@ public class DataServlet extends HttpServlet {
     }
     return userData;
   }
-
-  public String convertToJsonString(ArrayList<String> list) {
-    return new Gson().toJson(list);
-  }
-
 }
