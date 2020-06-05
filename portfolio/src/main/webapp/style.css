@@ -1,6 +1,24 @@
-#blocks, #comments, #details { 
+#blocks, #details { 
     padding-bottom: 10px;
     padding-top: 1px;
+}
+
+#comments {
+  list-style-type: none;
+}
+
+.comment {
+  border-radius: 25px;
+  border: thin solid #87CEFA;
+  padding: 20px; 
+  width: 400px;  
+  margin: 10px;
+  display: flex;
+
+}
+
+.comment span {
+  flex-grow: 1;
 }
 
 #content {

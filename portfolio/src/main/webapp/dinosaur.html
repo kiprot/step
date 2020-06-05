@@ -27,20 +27,23 @@
       <hr>
 
       <form action="/data" method="POST">
-        <p>Comment Section</p>
+        <h3>Comment Section</h3>
         <p>Your Name</p>
         <input type="text" name="user-name" minlength="1" required maxlength="150">
         <br/><br/>
         <p>Type Comment</p>
-        <input type="text" name="user-comment" minlength="1" required maxlength="150">
+        <input type="text" name="user-comment" minlength="1" required maxlength="300">
         <br/><br/>
         <input type="submit">
         <br/><br/>
         <hr>
       </form>
-      <br/><br/>
-      <button onclick="loadComments()">Click to See Some Comments</button>
-      <ul id="comments"></ul>
+      <br/>
+      <h3> View Comments</h3>
+      <p>Choose Number of Comments to See:</p>
+      <input type="number" name="number-choice" onchange="loadComments(value)" min="0" max="25" value="1">
+      <br/><br/>   
+      <ul id="comments"></ul> 
       
     </div>
   </body>
