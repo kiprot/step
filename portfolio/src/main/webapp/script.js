@@ -37,21 +37,42 @@ function toggleDetailsButton() {
 }
 
 /** Gets the data from server sides. */
-function loadComments() {
-    fetch('/data')  
+function loadComments(value) {
+    fetch('/data?num=' + value)  
     .then(response => response.json()) 
     .then((data) => {
         createCommentElement(data, 'comments');
     });
 }
 
-/** Creates an element for displaying comments*/
+/** Creates an element for displaying comments. */
 function createCommentElement(data, attribute) {
     const dataListElement = document.getElementById(attribute);
     dataListElement.innerHTML = '';
     for(let i in data) {
-        const liElement = document.createElement('li');
-        liElement.innerText = data[i].comment;
-        dataListElement.appendChild(liElement);
+        const commentElement = document.createElement('li');
+        commentElement.className = 'comment';
+
+        const titleElement = document.createElement('span');
+        titleElement.innerText = data[i].comment;
+
+        const deleteButtonElement = document.createElement('button');
+        deleteButtonElement.innerText = 'Delete';
+        deleteButtonElement.addEventListener('click', () => {
+            deleteComment(data[i]);
+            // Remove the task from the DOM.
+            commentElement.remove();
+        });
+
+        commentElement.appendChild(titleElement);
+        commentElement.appendChild(deleteButtonElement);
+        dataListElement.appendChild(commentElement);
     }
+}
+
+/** Tells the server to delete the comment in the datastore. */
+function deleteComment(comment) {
+    const params = new URLSearchParams();
+    params.append('id', comment.id);
+    fetch('/delete-data', {method: 'POST', body: params});
 }
