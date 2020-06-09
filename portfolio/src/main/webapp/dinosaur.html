@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400">
     <script src="script.js"></script>
   </head>
-  <body>
+  <body onload="fetchBlobstoreUrlAndShowForm()">
     <div id="content">
       <h1>[Project]Photos from the AMNH and the Met Museums</h1>
       <button onclick="toggleDetailsButton()">Click to Hide/Show Details</button>
@@ -26,18 +26,22 @@
       <div id="dinosaur-image-container"></div>
       <hr>
 
-      <form action="/data" method="POST">
+
+      <form id="my-form" class="hidden" method="POST" enctype="multipart/form-data">
         <h3>Comment Section</h3>
         <p>Your Name</p>
         <input type="text" name="user-name" minlength="1" required maxlength="150">
-        <br/><br/>
+        <br/>
         <p>Type Comment</p>
-        <input type="text" name="user-comment" minlength="1" required maxlength="300">
+        <textarea type="text" name="user-comment" minlength="1" required maxlength="300"></textarea>
+        <br/>
+        <p>Upload an image:</p>
+        <input type="file" name="image">
         <br/><br/>
-        <input type="submit">
-        <br/><br/>
-        <hr>
+        <button>Submit</button>
       </form>
+      <hr>
+      
       <br/>
       <h3> View Comments</h3>
       <p>Choose Number of Comments to See:</p>
