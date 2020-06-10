@@ -79,7 +79,7 @@ public class DataServlet extends HttpServlet {
     String name = getUserData(request, "user-name");
     String imageUrl = getUploadedFileUrl(request, "image");
 
-    if(comment == null || name == null) {
+    if(comment == null || name == null || imageUrl == null) {
       response.setContentType("text/html");
       response.getWriter().println("Please make sure all entries are filled.");
       return;
@@ -110,8 +110,7 @@ public class DataServlet extends HttpServlet {
   /** Returns a URL that points to the uploaded file, or null if the user did not upload a file. */
   private String getUploadedFileUrl(HttpServletRequest request, String formInputElementName) {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get("image");
+    List<BlobKey> blobKeys = blobstoreService.getUploads(request).get("image");
 
     // User submitted form without selecting a file, so we can't get a URL. (dev server)
     if (blobKeys == null || blobKeys.isEmpty()) {
@@ -122,8 +121,7 @@ public class DataServlet extends HttpServlet {
     BlobKey blobKey = blobKeys.get(0);
 
     // User submitted form without selecting a file, so we can't get a URL. (live server)
-    BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
-    if (blobInfo.getSize() == 0) {
+    if (new BlobInfoFactory().loadBlobInfo(blobKey).getSize() == 0) {
       blobstoreService.delete(blobKey);
       return null;
     }
