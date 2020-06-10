@@ -89,7 +89,6 @@ public class DataServlet extends HttpServlet {
     Entity commentEntity = new Entity("Comment");
     commentEntity.setProperty("comment", userComment);
     commentEntity.setProperty("timestamp", timestamp);
-
     commentEntity.setProperty("imageUrl", imageUrl);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -110,7 +109,7 @@ public class DataServlet extends HttpServlet {
   /** Returns a URL that points to the uploaded file, or null if the user did not upload a file. */
   private String getUploadedFileUrl(HttpServletRequest request, String formInputElementName) {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    List<BlobKey> blobKeys = blobstoreService.getUploads(request).get("image");
+    List<BlobKey> blobKeys = blobstoreService.getUploads(request).get(formInputElementName);
 
     // User submitted form without selecting a file, so we can't get a URL. (dev server)
     if (blobKeys == null || blobKeys.isEmpty()) {
