@@ -39,7 +39,7 @@
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .image-thumbs img {
@@ -53,4 +53,10 @@
   margin: 10px;
   max-height: 500px;
   max-width: 500px;
+}
+
+#map {
+  border: thin solid whitesmoke;
+  height: 500px;
+  width: 750px;
 }
