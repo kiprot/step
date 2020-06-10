@@ -38,35 +38,51 @@ function toggleDetailsButton() {
 
 /** Gets the data from server sides. */
 function loadComments(value) {
-    fetch('/data?num=' + value)  
+    fetch('/data?num=' + value.toString())  
     .then(response => response.json()) 
     .then((data) => {
         createCommentElement(data, 'comments');
     });
 }
 
+/* Creates and returns an image element for displaying. */
+function addImage(src) {
+  const image = document.createElement('img');
+  image.setAttribute("src", src);
+  image.setAttribute("max-width", "304");
+  image.setAttribute("height", "auto");
+  image.setAttribute("alt", "User's Uploaded Image");
+  return image;
+}
+
 /** Creates an element for displaying comments. */
 function createCommentElement(data, attribute) {
-    const dataListElement = document.getElementById(attribute);
-    dataListElement.innerHTML = '';
+  const dataListElement = document.getElementById(attribute);
+  dataListElement.innerHTML = '';
     for(let i in data) {
-        const commentElement = document.createElement('li');
-        commentElement.className = 'comment';
+      const commentElement = document.createElement('dl');
+      const commentElementImage = document.createElement('dt');
+      const commentElementTitle = document.createElement('dt');
+      const commentElementDelete = document.createElement('dt');
+      commentElement.className = 'comment';
 
-        const titleElement = document.createElement('span');
-        titleElement.innerText = data[i].comment;
+      const deleteButtonElement = document.createElement('button');
+      deleteButtonElement.innerText = 'Delete';
+      deleteButtonElement.addEventListener('click', () => {
+        deleteComment(data[i]);
+        // Remove the task from the DOM.
+        commentElement.remove();
+      });
 
-        const deleteButtonElement = document.createElement('button');
-        deleteButtonElement.innerText = 'Delete';
-        deleteButtonElement.addEventListener('click', () => {
-            deleteComment(data[i]);
-            // Remove the task from the DOM.
-            commentElement.remove();
-        });
+      commentElementTitle.innerText = data[i].comment;
+      commentElementDelete.appendChild(deleteButtonElement);
+      commentElementImage.appendChild(addImage(data[i].imageUrl));
 
-        commentElement.appendChild(titleElement);
-        commentElement.appendChild(deleteButtonElement);
-        dataListElement.appendChild(commentElement);
+      commentElement.appendChild(commentElementImage)
+      .appendChild(commentElementTitle)
+      .appendChild(commentElementDelete);
+
+      dataListElement.appendChild(commentElement);
     }
 }
 
@@ -75,4 +91,17 @@ function deleteComment(comment) {
     const params = new URLSearchParams();
     params.append('id', comment.id);
     fetch('/delete-data', {method: 'POST', body: params});
+}
+
+/** Gets BlobStore url from the server. */
+function fetchBlobstoreUrlAndShowForm() {
+    fetch('/blobstore-upload-url')
+    .then((response) => {
+        return response.text();
+    })
+    .then((imageUploadUrl) => {
+        const messageForm = document.getElementById('my-form');
+        messageForm.action = imageUploadUrl;
+        messageForm.classList.remove('hidden');
+    });
 }
