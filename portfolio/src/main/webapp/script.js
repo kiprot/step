@@ -106,39 +106,22 @@ function fetchBlobstoreUrlAndShowForm() {
     });
 }
 
-var museums = [
-    ['AMNH', 40.781470, -73.974020, 1],
-    ['The Met', 40.779632, -73.963266, 2],
-    ['Guggenheim', 40.783085, -73.958981, 3],
-    ['MoMA', 40.761579, -73.977675, 4],
-    ['Whitney Museum', 40.739815, -74.008874, 5],
-    ['Cloisters', 40.865041, -73.931727, 6],
-    ['The Intrepid', 40.865041, -73.931727, 7],
-    ['Museum of Sex', 40.744277, -73.987454, 8],
-    ['9/11 Memorial', 40.711582, -74.013851, 9]
-]
-
-/** Puts markers on some specified map locations. */
-function setMarkers(map) {
-    for (var i = 0; i < museums.length; i++) {
-        var museum = museums[i];
-        var marker = new google.maps.Marker({
-            position: {lat: museum[1], lng: museum[2]},
-            map: map,
-            title: museum[0],
-            // Takes care of the layering levels on the map.
-            zIndex: museum[3]
-        });
-    }
-}
-
-/** Creates a map centered in Manhattan NY. */
+/** Creates a map centered in Manhattan NY with some museum locations. */
 function createMap() {
-    const map = new google.maps.Map(
-        document.getElementById('map'),
-        {center: {lat: 40.7831, lng: -73.9712} , zoom: 12});
+    fetch('/museum-locations').then(response => response.json()).then((museumLocation) => {
+        const map = new google.maps.Map(
+            document.getElementById('map'),
+            {center: {lat: 40.7831, lng: -73.9712}, zoom: 12} );
 
-    setMarkers(map);
+        museumLocation.forEach((museumLocations) => {
+            new google.maps.Marker({
+                position: {lat: museumLocations.lat, lng: museumLocations.lng},
+                map: map,
+                title: museumLocations.title,
+                // Takes care of the layering levels on the map.
+                zIndex: museumLocations.layer });
+        });
+    });
 }
 
 /** Calls 2 other functions for onloading purposes. */
