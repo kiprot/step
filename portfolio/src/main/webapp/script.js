@@ -105,3 +105,27 @@ function fetchBlobstoreUrlAndShowForm() {
         messageForm.classList.remove('hidden');
     });
 }
+
+/** Creates a map centered in Manhattan NY with some museum locations. */
+function createMap() {
+    fetch('/museum-locations').then(response => response.json()).then((museumLocation) => {
+        const map = new google.maps.Map(
+            document.getElementById('map'),
+            {center: {lat: 40.7831, lng: -73.9712}, zoom: 12} );
+
+        museumLocation.forEach((museumLocations) => {
+            new google.maps.Marker({
+                position: {lat: museumLocations.lat, lng: museumLocations.lng},
+                map: map,
+                title: museumLocations.title,
+                // Takes care of the layering levels on the map.
+                zIndex: museumLocations.layer });
+        });
+    });
+}
+
+/** Calls 2 other functions for onloading purposes. */
+function onloadFunc() {
+    fetchBlobstoreUrlAndShowForm();
+    createMap();
+}

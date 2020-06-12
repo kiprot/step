@@ -5,9 +5,11 @@
     <title>Dinosaurs</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400">
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKtU2W9aNRa-6lh9PgonJy7jaPLlZBC9k">
+    </script>
     <script src="script.js"></script>
   </head>
-  <body onload="fetchBlobstoreUrlAndShowForm()">
+  <body onload="onloadFunc()">
     <div id="content">
       <h1>[Project]Photos from the AMNH and the Met Museums</h1>
       <button onclick="toggleDetailsButton()">Click to Hide/Show Details</button>
@@ -26,6 +28,10 @@
       <div id="dinosaur-image-container"></div>
       <hr>
 
+      <h3>Some Museum Locations</h3>
+      <p>These are the locations of some museums across New York City</p>
+      <div id="map"></div>
+      <hr>
 
       <form id="my-form" class="hidden" method="POST" enctype="multipart/form-data">
         <h3>Comment Section</h3>
