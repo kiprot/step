@@ -34,6 +34,7 @@ public final class FindMeetingQueryTest {
   // Some people that we can use in our tests.
   private static final String PERSON_A = "Person A";
   private static final String PERSON_B = "Person B";
+  private static final String PERSON_C = "Person C";
 
   // Some optional attendees for tests.
   private static final String OPTIONAL_A = "Optional A";
@@ -373,6 +374,48 @@ public final class FindMeetingQueryTest {
 
       Collection<TimeRange> actual = query.query(events, request);
       Collection<TimeRange> expected = Arrays.asList();
+      Assert.assertEquals(expected, actual);
+  }
+
+  // testCase1 and testCase2 are tests to try the query for a potential edge case.
+  @Test
+  public void testCase1() {
+      // An extra test case for a potential edge case.
+      Collection<Event> events = Arrays.asList(
+        new Event("Event 2", TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0800AM, false),
+            Arrays.asList(PERSON_A)),
+        new Event("Event 2", TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0900AM, false),
+            Arrays.asList(PERSON_B)),
+        new Event("Event 3", TimeRange.fromStartEnd(TIME_1100AM, TimeRange.END_OF_DAY, true),
+            Arrays.asList(PERSON_B))
+        );
+      MeetingRequest request = new MeetingRequest(Arrays.asList(PERSON_A, PERSON_B), DURATION_1_HOUR);
+
+      Collection<TimeRange> actual = query.query(events, request);
+      Collection<TimeRange> expected = Arrays.asList(
+        TimeRange.fromStartEnd(TIME_0900AM, TIME_1100AM, false)
+      );
+
+      Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testCase2() {
+
+      // An extra test case for a potential edge case.
+      Collection<Event> events = Arrays.asList(
+        new Event("Event 2", TimeRange.fromStartEnd(TIME_0800AM, TimeRange.END_OF_DAY, true),
+            Arrays.asList(PERSON_A)),
+        new Event("Event 2", TimeRange.fromStartEnd(TIME_0900AM, TIME_1100AM, false),
+            Arrays.asList(PERSON_B))
+        );
+      MeetingRequest request = new MeetingRequest(Arrays.asList(PERSON_A, PERSON_B), DURATION_1_HOUR);
+
+      Collection<TimeRange> actual = query.query(events, request);
+      Collection<TimeRange> expected = Arrays.asList(
+        TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0800AM, false)
+      );
+
       Assert.assertEquals(expected, actual);
   }
 }

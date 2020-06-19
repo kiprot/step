@@ -31,79 +31,58 @@ public final class FindMeetingQuery {
     if(request.getDuration() >  TimeRange.WHOLE_DAY.duration()) {
         return Arrays.asList();
     }
-
-    if(events.size() > 0) {
-
-        // Adds TimeRanges for events that required attendees will be attending.
-        for (Event event : events) {
-            for(String attendee : event.getAttendees()) {
-                if(attendeesInRequest.contains(attendee)) {
-                    eventsTimeRangeList.add(event.getWhen());
-                }
+    
+    // Adds TimeRanges for events that required attendees and optional attendees will be attending.
+    for (Event event : events) {
+        for(String attendee : event.getAttendees()) {
+            if(attendeesInRequest.contains(attendee)) {
+                eventsTimeRangeList.add(event.getWhen());
+            }
+            if(optionalAttendees.contains(attendee)) {
+                optionalsEventTimeRangeList.add(event.getWhen());
             }
         }
-
-        // Adds TimeRanges for events that optional attendees will be attending.
-        if(optionalAttendees.size() > 0) {
-            for(Event event : events) {
-                for(String optionalAttendee : event.getAttendees()) {
-                    if(optionalAttendees.contains(optionalAttendee)) {
-                        optionalsEventTimeRangeList.add(event.getWhen());
-                    }
-                }
-            }
-        }
-
-        // If no required or optional attendees have any other events, return whole day.
-        if(eventsTimeRangeList.size() == 0 && optionalsEventTimeRangeList.size() == 0) {
-            return Arrays.asList(TimeRange.WHOLE_DAY);
-        }
-
-        // Store available TimeRange slots for optional attendees.
-        ArrayList<TimeRange> optionalsSlots = new ArrayList<>();
-        if(optionalsEventTimeRangeList.size() > 0) {       
-            optionalsSlots = findSlots(optionalsEventTimeRangeList, request);
-        }
-
-        // Store available TimeRange slots for required attendees.
-        ArrayList<TimeRange> mandatorySlots = new ArrayList<>();
-        if(eventsTimeRangeList.size() > 0) {
-            mandatorySlots = findSlots(eventsTimeRangeList, request);
-        }
-
-        // Finds slots that are common to both requuired and optional attendees and returns them
-        // if there are any.
-        ArrayList<TimeRange> combinedSlots = new ArrayList<>();
-        if(optionalsSlots.size() > 0) {
-            for(TimeRange optionalSlot : optionalsSlots) {
-                for(TimeRange mandatorySlot : mandatorySlots) {
-                    if(mandatorySlot.equals(optionalSlot) || optionalSlot.contains(mandatorySlot)) {
-                        combinedSlots.add(mandatorySlot);
-                    } else if(mandatorySlot.contains(optionalSlot)) {
-                        combinedSlots.add(optionalSlot);
-                    }
-                }
-            }
-            if(combinedSlots.size() > 0) return combinedSlots;
-        }
-        return (mandatorySlots.size() > 0) ? mandatorySlots : optionalsSlots;
     }
-    // Returns whole day as option if there are no conflicts.
-    return Arrays.asList(TimeRange.WHOLE_DAY);
+
+    // If no required or optional attendees have any other events, return whole day.
+    if(eventsTimeRangeList.size() == 0 && optionalsEventTimeRangeList.size() == 0) {
+        return Arrays.asList(TimeRange.WHOLE_DAY);
+    }
+
+    // Combine both optional and mandatory attendees and treat them as 'mandatory' so that we
+    // can check if there are any slots available for both grooups to attend
+    ArrayList<TimeRange> optionalAndMandatory = new ArrayList<>();
+    optionalAndMandatory.addAll(eventsTimeRangeList);
+    optionalAndMandatory.addAll(optionalsEventTimeRangeList);
+    Collections.sort(optionalAndMandatory, TimeRange.ORDER_BY_START);
+    ArrayList<TimeRange> slotsForBothGroups = findSlots(optionalAndMandatory, request);
+
+    // Return list of TimeRanges for slots that both groups can attend, if there are any. Else,
+    // proceed onwards and process slots for mandatory attendees only.
+    if(slotsForBothGroups.size() != 0) {
+        return slotsForBothGroups;
+    }    
+
+    // Store available TimeRange slots for required attendees, and return them if there are any.
+    ArrayList<TimeRange> mandatorySlots = new ArrayList<>();
+    if(eventsTimeRangeList.size() > 0) {
+        mandatorySlots = findSlots(eventsTimeRangeList, request);
+    }
+    if(mandatorySlots.size() > 0) return mandatorySlots;
+
+    // Store available TimeRange slots for optional attendees, and return them if there are any.
+    // If there are none, this function returns an empty list.
+    ArrayList<TimeRange> optionalsSlots = new ArrayList<>();
+    if(optionalsEventTimeRangeList.size() > 0) {       
+        optionalsSlots = findSlots(optionalsEventTimeRangeList, request);
+    }
+    return optionalsSlots;
   }
 
   // Finds available TimeRange slots for a potential meeting given a meeting request.
-  private ArrayList<TimeRange> findSlots(ArrayList<TimeRange> eventsTimeRangeList, MeetingRequest request) {
-
+  private ArrayList<TimeRange> findSlots(ArrayList<TimeRange> timeRangeList, MeetingRequest request) {
     ArrayList<TimeRange> timeSlots = new ArrayList<>();
-    Collections.sort(eventsTimeRangeList, TimeRange.ORDER_BY_START);
-
-    // Remove nested events.
-    for(int i = 0; i < eventsTimeRangeList.size()-1; i++) {
-        if(eventsTimeRangeList.get(i).contains(eventsTimeRangeList.get(i+1))) {
-            eventsTimeRangeList.remove(eventsTimeRangeList.get(i+1));
-        }
-    }
+    ArrayList<TimeRange> eventsTimeRangeList = mergeNestedOrOverlappingEvnets(timeRangeList);
 
     // Add START_OF_DAY slot if the first TimeRange is not START_OF_DAY.
     if(eventsTimeRangeList.get(0).start() != TimeRange.START_OF_DAY) {
@@ -128,5 +107,29 @@ public final class FindMeetingQuery {
             TimeRange.END_OF_DAY, true) );
     }
     return timeSlots;
+  }
+
+  // Merges nested and overlapping events into one longer event.
+  public ArrayList<TimeRange> mergeNestedOrOverlappingEvnets(ArrayList<TimeRange> allUnavailableTimes) {
+    Collections.sort(allUnavailableTimes, TimeRange.ORDER_BY_START);
+
+    ArrayList<TimeRange> result = new ArrayList<>();
+    for (TimeRange currentTime: allUnavailableTimes) {
+      
+      // Add this TimeRange if it does not overlap with the previous one.
+      if (result.isEmpty() || !currentTime.overlaps(result.get(result.size()-1))) {
+        result.add(currentTime);
+      } else {  
+        TimeRange lastTimeRangeInResult = result.get(result.size()-1);
+        TimeRange mergedTimeRange = TimeRange.fromStartEnd(
+            Math.min(lastTimeRangeInResult.start(), currentTime.start()),
+            Math.max(lastTimeRangeInResult.end(), currentTime.end()),
+            false
+        );
+        result.remove(lastTimeRangeInResult);
+        result.add(mergedTimeRange);
+      }
+    }
+    return result;
   }
 }
